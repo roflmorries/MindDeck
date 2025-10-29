@@ -12,7 +12,7 @@ export class UserService {
       where: {
         id
       },
-      includes : {
+      include : {
         habits: true
       }
     })
