@@ -17,9 +17,10 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  avatar    String?
   createdAt DateTime @default(now()) @map("created_at")
 
-  passwodHash String
+  passwordHash String?
 
   isEmailVerified          Boolean   @default(false)
   emailVerifiedToken       String?   @unique
@@ -34,7 +35,7 @@ model User {
   lastLoginAt DateTime?
 
   socialAccounts SocialAccount[]
-  refreshToken RefreshToken[]
+  refreshToken   RefreshToken[]
   habits         Habit[]
 
   @@map("users")
@@ -56,12 +57,12 @@ model SocialAccount {
 }
 
 model RefreshToken {
-  id String @id @default(cuid())
-  token String @unique
+  id        String   @id @default(cuid())
+  token     String   @unique
   expiresAt DateTime
 
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
 
