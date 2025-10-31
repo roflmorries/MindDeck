@@ -2,9 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { SocialAccount, AuthProvider } from '@prisma/client';
 
+interface CreateSocialAccountDto {
+  provider: AuthProvider;
+  providerId: string;
+  userId: string;
+}
+
 @Injectable()
 export class SocialAccountService {
   constructor(private prisma: PrismaService) {}
+
+    async upsertSocialAccount(data: CreateSocialAccountDto): Promise<SocialAccount> {
+    return this.prisma.socialAccount.upsert({
+      where: {
+        provider_providerId: {
+          provider: data.provider,
+          providerId: data.providerId,
+        },
+      },
+      update: {
+        userId: data.userId,
+      },
+      create: data,
+    });
+  }
 
   async findByUserId(userId: string): Promise<SocialAccount[]> {
     return this.prisma.socialAccount.findMany({

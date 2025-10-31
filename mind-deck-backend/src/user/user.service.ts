@@ -8,7 +8,7 @@ import { User } from '@prisma/client';
 export class UserService {
   constructor(private prisma: PrismaService) { }
 
-  async findByMail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
       include: {
@@ -47,6 +47,10 @@ export class UserService {
   }
 
   async update(id: string, data: UpdateUserDto) : Promise<User> {
+    const user = await this.findUserById(id);
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
     return this.prisma.user.update({
       where: {id},
       data,
