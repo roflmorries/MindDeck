@@ -8,11 +8,11 @@ import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../../prisma.service";
 
 export interface JwtRefreshPayload {
-  userId: string;
+  sub: string;
   email: string;
   // role: string;
-  issuedAt: number;
-  expires: number;
+  iat: number;
+  exp: number;
 }
 
 
@@ -45,7 +45,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     }
 
 
-    const user = await this.userService.findUserById(payload.userId);
+    const user = await this.userService.findUserById(payload.sub);
     if (!user) {
       throw new UnauthorizedException('User not found')
     }
