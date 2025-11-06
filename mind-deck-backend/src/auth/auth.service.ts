@@ -95,6 +95,14 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  async logout(refreshToken: string): Promise<{ message: string }> {
+    await this.prisma.refreshToken.deleteMany({
+      where: { token: refreshToken }
+    })
+
+    return {message: 'Logged out successfully'}
+  }
+
   private async createRefreshToken(data: {
     token: string;
     userId: string;
