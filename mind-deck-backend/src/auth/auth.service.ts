@@ -26,10 +26,10 @@ export interface OAuthUserData {
 export class AuthService {
   constructor(
     private prisma: PrismaService,
+    private config: ConfigService,
     private jwt: JwtService,
     private userService: UserService,
     private socialAccountService: SocialAccountService,
-    private config: ConfigService
   ) { }
 
   async register(dto: RegisterDto): Promise<JwtTokens> {
