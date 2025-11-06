@@ -100,7 +100,35 @@ export class AuthService {
       where: { token: refreshToken }
     })
 
-    return {message: 'Logged out successfully'}
+    return { message: 'Logged out successfully' }
+  }
+
+  private async deleteRefreshToken(id: string): Promise<void> {
+    await this.prisma.refreshToken.delete({ where: { id } })
+  }
+
+  private async deleteRefreshTokenByValue(token: string): Promise<void> {
+    await this.prisma.refreshToken.deleteMany({
+      where: { token }
+    })
+  }
+
+  async deleteRefreshTokenById(tokenId: string): Promise<void> {
+    await this.deleteRefreshToken(tokenId);
+  }
+
+  async getUserById(userId: string): Promise<User> {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return user;
+  }
+
+  async generateTokensForUser(user: User): Promise<JwtTokens> {
+    return this.generateTokens(user);
   }
 
   private async createRefreshToken(data: {
