@@ -48,7 +48,7 @@ export class AuthController {
     @Body() dto: AuthDto,
     @Res({ passthrough: true }) res: Response
   ): Promise<{ message: string; user: any }> {
-    const tokens = await this.authService.register(dto);
+    const tokens = await this.authService.login(dto);
 
     TokenUtils.setRefreshTokenCookie(res, tokens.refreshToken);
 
