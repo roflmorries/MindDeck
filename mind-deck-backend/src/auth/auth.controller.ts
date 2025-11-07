@@ -131,14 +131,13 @@ export class AuthController {
     }
   }
 
-  // 🚪 POST /api/auth/logout - Выход
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard) // Требует авторизации
+  @UseGuards(JwtAuthGuard)
   async logout(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @CurrentUser('id') userId: string, // Получаем ID текущего пользователя
+    @CurrentUser('id') userId: string,
   ): Promise<{ message: string }> {
     const refreshToken = TokenUtils.getRefreshTokenFromCookie(req);
 
@@ -146,7 +145,6 @@ export class AuthController {
       await this.authService.logout(refreshToken);
     }
 
-    // Удаляем cookie
     res.clearCookie('refreshToken');
 
     return { message: 'Logged out successfully' };

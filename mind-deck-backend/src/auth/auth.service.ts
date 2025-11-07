@@ -141,7 +141,7 @@ export class AuthService {
 
   private async generateTokens(user: User): Promise<JwtTokens> {
     const payload = {
-      userId: user.id,
+      sub: user.id,
       email: user.email,
     }
 
