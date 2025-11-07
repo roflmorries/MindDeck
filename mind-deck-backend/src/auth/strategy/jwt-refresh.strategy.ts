@@ -10,7 +10,6 @@ import { PrismaService } from "../../prisma.service";
 export interface JwtRefreshPayload {
   sub: string;
   email: string;
-  // role: string;
   iat: number;
   exp: number;
 }
@@ -42,6 +41,11 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
       })
     } catch (error) {
       throw new UnauthorizedException('Invalid refresh token signature')
+    }
+
+    if (!payload.sub) {
+      console.error('No user ID in token payload', payload);
+      throw new UnauthorizedException('Invalid token payload')
     }
 
 
