@@ -82,31 +82,31 @@ export class AuthController {
     res.redirect(`${frontendUrl}/auth/success?token=${tokens.accessToken}`);
   }
 
-  @Public()
-  @Post('magic-link')
-  @HttpCode(HttpStatus.OK)
-  async sendMagicLink(@Body() dto: MagicLinkDto): Promise<{ message: string }> {
-    return this.authService.sendMagicLink(dto);
-  }
+  // @Public()
+  // @Post('magic-link')
+  // @HttpCode(HttpStatus.OK)
+  // async sendMagicLink(@Body() dto: MagicLinkDto): Promise<{ message: string }> {
+  //   return this.authService.sendMagicLink(dto);
+  // }
 
-  // 🔗 GET /api/auth/verify/:token - Подтвердить magic link
-  @Public()
-  @Get('verify/:token')
-  async verifyMagicLink(
-    @Param('token') token: string, // Извлекаем token из URL
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<{ message: string; user: any }> {
-    const tokens = await this.authService.verifyMagicLink(token);
+  // // 🔗 GET /api/auth/verify/:token - Подтвердить magic link
+  // @Public()
+  // @Get('verify/:token')
+  // async verifyMagicLink(
+  //   @Param('token') token: string, // Извлекаем token из URL
+  //   @Res({ passthrough: true }) res: Response,
+  // ): Promise<{ message: string; user: any }> {
+  //   const tokens = await this.authService.verifyMagicLink(token);
 
-    this.setRefreshTokenCookie(res, tokens.refreshToken);
+  //   this.setRefreshTokenCookie(res, tokens.refreshToken);
 
-    return {
-      message: 'Email verified successfully',
-      user: {
-        accessToken: tokens.accessToken,
-      },
-    };
-  }
+  //   return {
+  //     message: 'Email verified successfully',
+  //     user: {
+  //       accessToken: tokens.accessToken,
+  //     },
+  //   };
+  // }
 
   // 🔄 POST /api/auth/refresh - Обновить токены
   @Public()
@@ -124,7 +124,11 @@ export class AuthController {
     const user = await this.authService.getUserById(req.user.id);
     const tokens = await this.authService.generateTokensForUser(user);
 
-    this
+    TokenUtils.setRefreshTokenCookie(res, tokens.refreshToken);
+
+    return {
+      accessToken: tokens.accessToken
+    }
   }
 
   // 🚪 POST /api/auth/logout - Выход
@@ -136,7 +140,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
     @CurrentUser('id') userId: string, // Получаем ID текущего пользователя
   ): Promise<{ message: string }> {
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken = TokenUtils.getRefreshTokenFromCookie(req);
 
     if (refreshToken) {
       await this.authService.logout(refreshToken);
