@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { AuthDto } from './dto/auth.dto';
@@ -30,13 +34,13 @@ export class AuthService {
     private jwt: JwtService,
     private userService: UserService,
     private socialAccountService: SocialAccountService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto): Promise<JwtTokens> {
     const existingUser = await this.userService.findByEmail(dto.email);
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists')
+      throw new ConflictException('User with this email already exists');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
@@ -44,17 +48,17 @@ export class AuthService {
     const user = await this.userService.create({
       email: dto.email,
       name: dto.name,
-      passwordHash
-    })
+      passwordHash,
+    });
 
-    return this.generateTokens(user)
-  };
+    return this.generateTokens(user);
+  }
 
   async login(dto: AuthDto): Promise<JwtTokens> {
     const user = await this.validateUser(dto.email, dto.password);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials')
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return this.generateTokens(user);
@@ -63,12 +67,12 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
     if (!user || !user.passwordHash) {
-      return null
+      return null;
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
-      return null
+      return null;
     }
 
     return user;
@@ -82,35 +86,35 @@ export class AuthService {
         email: userData.email,
         name: userData.name,
         avatar: userData.avatar,
-        isEmailVerified: true
-      })
+        isEmailVerified: true,
+      });
     }
 
     await this.socialAccountService.upsertSocialAccount({
       provider: userData.provider,
       providerId: userData.providerId,
-      userId: user.id
-    })
+      userId: user.id,
+    });
 
     return this.generateTokens(user);
   }
 
   async logout(refreshToken: string): Promise<{ message: string }> {
     await this.prisma.refreshToken.deleteMany({
-      where: { token: refreshToken }
-    })
+      where: { token: refreshToken },
+    });
 
-    return { message: 'Logged out successfully' }
+    return { message: 'Logged out successfully' };
   }
 
   private async deleteRefreshToken(id: string): Promise<void> {
-    await this.prisma.refreshToken.delete({ where: { id } })
+    await this.prisma.refreshToken.delete({ where: { id } });
   }
 
   private async deleteRefreshTokenByValue(token: string): Promise<void> {
     await this.prisma.refreshToken.deleteMany({
-      where: { token }
-    })
+      where: { token },
+    });
   }
 
   async deleteRefreshTokenById(tokenId: string): Promise<void> {
@@ -143,7 +147,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
-    }
+    };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwt.signAsync(payload, {
@@ -162,10 +166,9 @@ export class AuthService {
     await this.createRefreshToken({
       token: refreshToken,
       userId: user.id,
-      expiresAt
-    })
+      expiresAt,
+    });
 
-    return { accessToken, refreshToken }
+    return { accessToken, refreshToken };
   }
-
 }
