@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // @ts-expect-error - Tailwind v4 CSS import
 import "./globals.css";
-import { ThemeProvider } from "@/lib/ThemeProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
